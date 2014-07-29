@@ -1,20 +1,23 @@
 complete <- function(directory, id = 1:332) {
   # set working directory
-  setwd(directory)
+  #setwd(directory)
   
-  # read in a list of all of the files in the specified directory
-  files <- list.files(directory)
+  # grab all file data
+  files <- lapply(dir(), read.csv)
   
   # set up empty data frame
   completes <- data.frame(numeric(), numeric())
   
-  # loop through the specified ids
-  for (i in id) {
-    # read in indexed file
-    data <- read.csv(files[i])
+  # loop through the files
+  for (file in files) {
+    # peek at the first line
+    r <- head(file, 1)
     
-    # bind new row to data frame
-    completes <- rbind(completes, c(i, nrow(data[complete.cases(data),])))
+    # see if the ID is within range
+    # if so, add it
+    if (length(id[id==r$ID]) > 0) {
+      completes <- rbind(completes, c(r$ID, nrow(file[complete.cases(file),])))
+    }
   }
   
   # column name it up
