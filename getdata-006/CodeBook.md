@@ -569,7 +569,7 @@ activityid
 
 activitylabel
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The activity id number
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The activity label
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 .WALKING
 
