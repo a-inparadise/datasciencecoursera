@@ -7,7 +7,7 @@ run_analysis <- function() {
   features <- read.table("features.txt")
   
   # grab all features and their index, that contain mean() or std()
-  des_features <- features[grepl(paste(c("mean\\(\\)", "std\\(\\)"),collapse="|"), features[,2]),]
+  des_features <- features[grepl(paste(c("mean", "std"),collapse="|"), features[,2]),]
   
   # format column names to something more "tidy"
   # removing all instances of "-", "(", ")"
