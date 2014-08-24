@@ -2,29 +2,24 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
   # set working directory
   setwd(directory)
   
-  # read in data files in directory
-  datafiles <- lapply(dir(), read.csv)
+  # grab all file data
+  files <- lapply(dir(), read.csv)
   
-  # create empty data frame
-  data <- data.frame()
+  # create empty numeric vector
+  v <- numeric()
   
-  # merge into one data frame
-  for (df in datafiles) {
+  # loop through the files
+  for (file in files) {
+    # peek at the first line
+    r <- head(file, 1)
     
-    data <- merge(data, df)
+    # see if the ID is within range
+    # if so, add it to the vector
+    if (length(id[id==r$ID]) > 0) {
+      v <- c(v, file[[pollutant]])
+    }
   }
   
-  data
-  
-#   # create empty numeric vector
-#   v <- numeric()
-#   
-#   # loop through the specified ids
-#   for (i in id) {
-#     # append the specified column data to the v vector
-#     v <- c(v, data[[i]])
-#   }
-#   
-#   # return the mean, NA's removed
-#   mean(v, na.rm=TRUE)
+  # return the mean, NA's removed
+  mean(v, na.rm=TRUE)
 }
