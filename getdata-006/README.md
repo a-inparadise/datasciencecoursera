@@ -4,7 +4,7 @@ README
 Run Analysis Script - Data Science, Getting and Cleaning Data
 
 
-The following document is a process description for the creation of the run_analysis.R script.  The run_analysis script leverages the data from the Human Activity Recognition Using Smartphones Dataset (HARUSD), descirbed at the below link, to create a tidy dataset that combines both the test and training data for all mean and standard deviation features (excluding the meanFreq features, more on this below) and the corresponding subjects, activity ids and labels.  The script also creates a smaller tidy dataset which contains the averages for all features for each activtiy and subject.
+The following document is a process description for the creation of the run_analysis.R script.  The run_analysis script leverages the data from the Human Activity Recognition Using Smartphones Dataset (HARUSD), descirbed at the below link, to create a tidy dataset that combines both the test and training data for all mean and standard deviation features and the corresponding subjects, activity ids and labels.  The script also creates a smaller tidy dataset which contains the averages for all features for each activtiy and subject.
 
 http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
 
@@ -12,7 +12,7 @@ The process description for run_analysis.R is as follows.  The script uses the u
 
 MERGING X TRAIN AND TEST DATA
 
-It begins by first consuming the X train and test data files.  Next, it consumes the features data file, which lists the column names for each column of data in the X train and test sets.  The assignment called for the extraction of only the mean and standard deviation for each feature, so this script made the judgement call to exclude the meanFreq features simply because not every feature contained a meanFreq data, so this script used only the feature data with mean() and std().  The script strips only the mean and std columns from the features file and uses the subset of the feature data to subset the X train and test data sets.  It then merges the two sets train, on top of test using an rbind().  It then applies the column names (which have been tidied, by removing all "-", "(", ")" characters and applying lowercase). 
+It begins by first consuming the X train and test data files.  Next, it consumes the features data file, which lists the column names for each column of data in the X train and test sets.  The assignment called for the extraction of only the mean and standard deviation for each feature, thus the script strips only the mean and std columns from the features file and uses the subset of the feature data to subset the X train and test data sets.  It then merges the two sets train, on top of test using an rbind().  It then applies the column names (which have been tidied, by removing all "-", "(", ")" characters and applying lowercase). 
 
 
 MERGING SUBJECT TRAIN AND TEST DATA
