@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>README</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h1>README</h1>
+
+<p>Run Analysis Script - Data Science, Getting and Cleaning Data</p>
+
+<p>The following document is a process description for the creation of the run_analysis.R script.  The run_analysis script leverages the data from the Human Activity Recognition Using Smartphones Dataset (HARUSD), descirbed at the below link, to create a tidy dataset that combines both the test and training data for all mean and standard deviation features (excluding the meanFreq features, more on this below) and the corresponding subjects, activity ids and labels.  The script also creates a smaller tidy dataset which contains the averages for all features for each activtiy and subject.</p>
+
+<p><a href="http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones">http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones</a></p>
+
+<p>The process description for run_analysis.R is as follows.  The script uses the unzipped root of the HARUSD as it&#39;s current working directory.  </p>
+
+<p>MERGING X TRAIN AND TEST DATA</p>
+
+<p>It begins by first consuming the X train and test data files.  Next, it consumes the features data file, which lists the column names for each column of data in the X train and test sets.  The assignment called for the extraction of only the mean and standard deviation for each feature, so this script made the judgement call to exclude the meanFreq features simply because not every feature contained a meanFreq data, so this script used only the feature data with mean() and std().  The script strips only the mean and std columns from the features file and uses the subset of the feature data to subset the X train and test data sets.  It then merges the two sets train, on top of test using an rbind().  It then applies the column names (which have been tidied, by removing all &ldquo;-&rdquo;, &ldquo;(&rdquo;, &ldquo;)&rdquo; characters and applying lowercase). </p>
+
+<p>MERGING SUBJECT TRAIN AND TEST DATA</p>
+
+<p>The subject data files are then read and merged, train on top of test.  A descriptive column name of &ldquo;subjectid&rdquo; is applied to the dataframe.   Next, the subjectid data is binded to the larger tidy dataset using a cbind.</p>
+
+<p>MERGING Y TRAIN AND TEST DATA</p>
+
+<p>The next data to fold into the larger tidy data set is the corresponding activity ids, contained in the Y train and test data files.  The script reads in the data and then merges them, train on top of test, and then applies a descriptive label of &ldquo;activityid&rdquo; to the data frame.  Next, the activityid data is binded to the larger tidy dataset using a cbind.</p>
+
+<p>APPLYING ACTIVITY LABELS TO ACTIVITY IDS</p>
+
+<p>The activity labels are read into the script and the script creates a new column onto the larger tidy dataset called &ldquo;activtiylabel&rdquo;, which will contain the activity label for each activity id.  Next, the script loops over each activity label and using the activity id (column 1 of the activity label data) it subsets the large tidy data set and sets the appropriate activity label for each activity id.  Once the loop is complete, the large tidy dataset will contain activity labels for each activity id.</p>
+
+<p>LARGE TIDY DATASET</p>
+
+<p>At this point the script has created a larger tidy dataset that contains all mean and standard deviation features, the subjectid, the activitiyid and the corresponding activity label.  Descriptive column names have been applied to all columns and this is the dataset that the run_analysis script will return.</p>
+
+<p>CREATING THE AVERAGE SUMMARY TIDY DATA SET</p>
+
+<p>Using the larger tidy dataset the script uses the aggregate function to create a smaller tidy dataset that contains the average (using the mean function) for each feature for each activity and each subject.  Once the script creates the dataset it nexts creates new column names for each feature that describe them as an average, by simply prepend &ldquo;avg&rdquo; to each column name, thus &ldquo;tbodyaccmeanx&rdquo; becomes &ldquo;avgtbodyaccmeanx&rdquo;.  This smaller tidy dataset is then written to file using write.table into the &ldquo;tidy_analysis.txt&rdquo; file in the current working directory.</p>
+
+</body>
+
+</html>
+
