@@ -32,7 +32,7 @@ The activity labels are read into the script and the script creates a new column
 
 LARGE TIDY DATASET
 
-At this point the script has created a larger tidy dataset that contains all mean and standard deviation features, the subjectid, the activitiyid and the corresponding activity label.  Descriptive column names have been applied to all columns and this is the dataset that the run_analysis script will return.
+At this point the script has created a larger tidy dataset that contains all mean and standard deviation features, the subjectid, the activitiyid and the corresponding activity label.  Descriptive column names have been applied to all columns and this is the dataset that the run_analysis script will return.  Note, I've chosen to keep the activityid in the large tidy dataset, this is so that the dataset could be cross referenced with the original data to test for correctness, just in case.
 
 
 CREATING THE AVERAGE SUMMARY TIDY DATA SET
