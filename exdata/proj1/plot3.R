@@ -17,7 +17,7 @@ par(mfrow=c(1,1)) # reset plot canvas
 with(data, plot(DateTime, Sub_metering_1, type="l", ylab="Energy sub metering", xlab=""))
 with(data, points(DateTime, Sub_metering_2, col="red", type="l"))
 with(data, points(DateTime, Sub_metering_3, col="blue", type="l"))
-legend("topright", lwd = 1, col = c("black", "blue", "red"), legend = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"))
+legend("topright", lwd = 1, col = c("black", "red", "blue"), legend = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"))
 
 # close the stream
 dev.off()
