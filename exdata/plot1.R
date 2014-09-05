@@ -9,7 +9,7 @@ names(data) <- c("Date","Time","Global_active_power","Global_reactive_power","Vo
 data$DateTime <- strptime(paste(data$Date, data$Time), "%d/%m/%Y %H:%M:%S")
 
 # open png stream
-png("plot1.png", width = 480, height = 480, units = "px")
+png("plot1.png", width = 480, height = 480, units = "px", bg = "transparent")
 
 # create the histogram for plot 1
 # frequency of global active power, styled with red bars

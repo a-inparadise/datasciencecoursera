@@ -9,7 +9,7 @@ names(data) <- c("Date","Time","Global_active_power","Global_reactive_power","Vo
 data$DateTime <- strptime(paste(data$Date, data$Time), "%d/%m/%Y %H:%M:%S")
 
 # open png stream
-png("plot2.png", width = 480, height = 480, units = "px")
+png("plot2.png", width = 480, height = 480, units = "px", bg = "transparent")
 
 # create the line graph
 # global active power along they and date time over x
