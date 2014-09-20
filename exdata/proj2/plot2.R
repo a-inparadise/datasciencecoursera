@@ -8,9 +8,6 @@ bmore <- NEI[NEI$fips=="24510",]
 # for baltimore city, fips == "24510"
 totals <- tapply(bmore$Emissions,bmore$type, sum)
 
-# convert totals from kilotons to tons
-totals <- totals / 1000
-
 # open png stream
 png("plot2.png", width=480, height=480, units="px")
 
