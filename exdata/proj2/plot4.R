@@ -6,16 +6,19 @@ NEI <- readRDS("summarySCC_PM25.rds")
 SCC <- readRDS("Source_Classification_Code.rds")
 
 # create a subset for all instances of combustion followed by coal
-# on the Short.Name column of the SCC data set
+# on the EI.Sector column of the SCC data set
 # Note: as discussed in the discussion threads there are MANY aproaches
 #       to this aggregation.  in the real world the analysis would have 
 #       a well defined scope as well as subject matter experts to define
 #       that scope.  since we have neither in this assignment, this is
 #       aggregation that i chose.  c'est la vie
-coalsccsubset <- subset(SCC, grepl("comb.*coal", Short.Name, ignore.case=TRUE))
+coalsccsubset <- subset(SCC, grepl("comb.*coal", EI.Sector, ignore.case=TRUE))
 
 # subset NEI with the coal subset
 coalneisubset <- NEI[NEI$SCC %in% coalsccsubset$SCC,]
+
+# factorize data set year
+coalneisubset$year <- factor(coalneisubset$year)
 
 # will be showing 3 plots to analyze the trend for coal combustion sources
 # by year
@@ -30,9 +33,10 @@ g1 <- ggplot(data=coalneisubset, aes(x=year, y=(Emissions/1000))) +
 
 # plot 2: emissions for coal combustion related sources by year
 # histograms for all emission sources over each year
-g2 <- ggplot(data=coalneisubset, aes(x=year, y=(Emissions/1000)) +
+g2 <- ggplot(data=coalneisubset, aes(x=year, y=(Emissions/1000))) +
   geom_bar(stat="identity") +
   facet_wrap(~ SCC) +
+  theme(axis.text.x = element_text(angle=90, vjust=1)) +
   labs(title="Emissions for Coal Combustion-Related Sources by Year") +
   labs(x="Year") +
   labs(y="PM2.5 Emitted (kilotons)")
