@@ -4,7 +4,7 @@ NEI <- readRDS("summarySCC_PM25.rds")
 # calculate total emmissions for all sources for each year
 totals <- tapply(NEI$Emissions, NEI$year, sum)
 
-# convert totals to kilotons
+# convert totals to kilotons(nicer y axis)
 totals <- totals / 1000
 
 # open png stream
