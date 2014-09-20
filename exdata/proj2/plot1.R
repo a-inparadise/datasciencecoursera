@@ -11,7 +11,7 @@ totals <- totals / 1000
 png("plot1.png", width=480, height=480, units="px")
 
 # use a bar plot to show the trend over each year
-barplot(totals, xlab="Year", ylab="PM2.5 Emitted (kilotons)", col="blue", main="Total Emissions By Year")
+barplot(totals, xlab="Year", ylab="PM2.5 Emitted (kilotons)", col="blue", main="Total Emissions by Year")
 
 # close the stream
 dev.off()

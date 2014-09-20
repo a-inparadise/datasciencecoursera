@@ -16,7 +16,7 @@ png("plot3.png", width=480, height=480, units="px")
 g <- ggplot(data=bmore, aes(x=year, y=Emissions))
 g <- g + geom_bar(stat="identity")
 g <- g + facet_wrap(~ type)
-g <- g + labs(title="Total Emissions for Baltimore by Type")
+g <- g + labs(title="Total Emissions for Baltimore City by Type")
 g <- g + labs(x="Year")
 g <- g + labs(y="PM2.5 Emitted (tons)")
 
