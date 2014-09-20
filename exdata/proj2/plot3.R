@@ -10,7 +10,7 @@ bmore <- NEI[NEI$fips=="24510",]
 bmore$year <- factor(bmore$year)
 
 # open png stream
-png("plot3.png", width=480, height=480, units="px")
+png("plot3.png", width=960, height=960, units="px")
 
 # show the trend over each year for each type
 g <- ggplot(data=bmore, aes(x=year, y=Emissions))
