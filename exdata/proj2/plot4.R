@@ -35,7 +35,7 @@ g1 <- ggplot(data=coalneisubset, aes(x=year, y=(Emissions/1000))) +
 # histograms for all emission sources over each year
 g2 <- ggplot(data=coalneisubset, aes(x=year, y=(Emissions/1000))) +
   geom_bar(stat="identity") +
-  facet_wrap(~ SCC) +
+  facet_wrap(~ SCC, scales = "free") +
   theme(axis.text.x = element_text(angle=90, vjust=1)) +
   labs(title="Emissions for Coal Combustion-Related Sources by Year") +
   labs(x="Year") +
