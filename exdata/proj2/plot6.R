@@ -1,5 +1,4 @@
 library(ggplot2)
-library(grid)
 
 # read in data sets
 NEI <- readRDS("summarySCC_PM25.rds")
@@ -16,6 +15,8 @@ mvsccsubset <- subset(SCC, grepl("onroad", Data.Category, ignore.case=TRUE))
 
 # subset the NEI dataset for only baltimore city data
 bmoreplusla <- subset(NEI, fips=="24510" | fips=="06037")
+bmore <- subset(NEI, fips=="24510")
+la <- subset(NEI, fips=="06037")
 
 # subset bmore and la NEI with the motor vehicle subset
 mvbmorela <- bmoreplusla[bmoreplusla$SCC %in% mvsccsubset$SCC,]

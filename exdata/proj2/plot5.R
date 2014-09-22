@@ -1,5 +1,4 @@
 library(ggplot2)
-library(grid)
 
 # read in data sets
 NEI <- readRDS("summarySCC_PM25.rds")
