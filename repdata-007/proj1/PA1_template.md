@@ -320,34 +320,34 @@ The values differ from the original data, in that dates that were previously mis
 
 ```r
 # cast the date as a date
-activity$date <- as.Date(activity$date, format="%Y-%m-%d")
+activityNARep$date <- as.Date(activityNARep$date, format="%Y-%m-%d")
 
 # create new column for daytype factor
-activity$daytype <- NA
+activityNARep$daytype <- NA
 
 # go through the dataset and determine the daytype for each date
-for (i in 1:nrow(activity)) {
-  if (weekdays(activity[i,]$date) == "Saturday" || weekdays(activity[i,]$date) == "Sunday") {
-    activity[i,]$daytype <- "weekend"
+for (i in 1:nrow(activityNARep)) {
+  if (weekdays(activityNARep[i,]$date) == "Saturday" || weekdays(activityNARep[i,]$date) == "Sunday") {
+    activityNARep[i,]$daytype <- "weekend"
   } else {
-    activity[i,]$daytype <- "weekday"
+    activityNARep[i,]$daytype <- "weekday"
   }
 }
 
 # factorize the daytime
-activity$daytype <- factor(activity$daytype,levels=c("weekday","weekend"))
+activityNARep$daytype <- factor(activityNARep$daytype,levels=c("weekday","weekend"))
 
-head(activity)
+head(activityNARep)
 ```
 
 ```
-##   steps       date interval daytype
-## 1    NA 2012-10-01        0 weekday
-## 2    NA 2012-10-01        5 weekday
-## 3    NA 2012-10-01       10 weekday
-## 4    NA 2012-10-01       15 weekday
-## 5    NA 2012-10-01       20 weekday
-## 6    NA 2012-10-01       25 weekday
+##     steps       date interval daytype
+## 1 1.71698 2012-10-01        0 weekday
+## 2 0.33962 2012-10-01        5 weekday
+## 3 0.13208 2012-10-01       10 weekday
+## 4 0.15094 2012-10-01       15 weekday
+## 5 0.07547 2012-10-01       20 weekday
+## 6 2.09434 2012-10-01       25 weekday
 ```
 
 2) Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
@@ -355,7 +355,7 @@ head(activity)
 
 ```r
 # calculate the average number of steps for all days for each interval
-intervalDayTypeMeans <- na.omit(activity) %>%
+intervalDayTypeMeans <- activityNARep %>%
   group_by(interval, daytype) %>%
   summarise_each(funs(mean), steps)
 
