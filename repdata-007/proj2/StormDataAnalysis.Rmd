@@ -1,48 +1,97 @@
-Title
+NOAA Storm Data Analysis
 ========================================================
+## Weather Events Effect on the Population
 
-### Required packages
+<br>
 
-```{r}
+## Synopsis
+
+Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.  This analysis will be looking at the effect that weather events have on population health and population economy.
+
+This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.
+
+<br>
+
+## Data Processing
+
+### Required Packages
+
+For this analysis we will be using the <b>ggplot2</b> and <b>dplyr</b> packages
+
+```{r echo=TRUE, results='hide', message=FALSE}
 library(ggplot2)
 library(dplyr)
-library(reshape2)
 ```
 
-### Process the data
+### The Data
+
+The data for this analysis comes in the form of a comma-separated-value file compressed via the bzip2 algorithm to reduce its size. You can download the file from the course web site:
+
+<span style="padding-left:5em"><a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2">Storm Data </a> [47Mb]</span>
+
+There is also some documentation of the database available. Here you will find how some of the variables are constructed/defined.
+
+<span style="padding-left:5em">National Weather Service <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf">Storm Data Documentation</a></span>
+
+<span style="padding-left:5em">National Climatic Data Center Storm Events <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf">FAQ</a></span>
+
+The events in the database start in the year 1950 and end in November 2011. In the earlier years of the database there are generally fewer events recorded, most likely due to a lack of good records. More recent years should be considered more complete.
+
+### Consume The Data
 
 ```{r cache=TRUE}
-# read in storm data
 storm <- read.csv("repdata-data-StormData.csv", header=TRUE)
 ```
 
-```{r}
+Show some basic information about the data, just to get a feel for it.
+
+```{r cache=TRUE}
+names(storm)
+```
+
+```{r cache=TRUE}
+summary(storm)
+```
+
+### Clean and Prepare The Data
+
+While complete, the data is very untidy. The first step in tidying the data is normalizing the event types (EVTYPE column). When looking at the event types, we can see that the types are very inconsistent.  Most are all uppercase, but some are lowercase.  Some have leading or trailing white space.  To normalize the event types, we will first apply the uppercase function to the all event type data.  This will help when aggregating the data later on.  We will then apply a trim function to remove leading and trailing white space.
+
+```{r cache=TRUE}
 # uppercase the event types to remove some duplicates upon aggregation
 storm$EVTYPE <- toupper(storm$EVTYPE)
 
-# 47 event types listed in NOAA documentation, uppercased
+# create a function that removes leading and trailing whitespace
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+# trim event type of whitespace
+storm$EVTYPE <- trim(storm$EVTYPE)
+```
+
+After applying these functions, we have a more consistent event type set, but if we run a count on the number of distinct event types we have in the current data set, we will see that we have much more:
+
+```{r}
+length(unique(storm$EVTYPE))
+```
+
+According to section 2.1.1 of the Storm Data Documentation linked to above, there are 48 distinct event types. We can use the NOAA event type specification to filter down the event types that we care about for this analysis.  Once we do that, we can see that the event types are much more specific and cleaner.
+
+```{r cache=TRUE}
+# 48 event types listed in NOAA documentation, uppercased
 eventtypes <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Frost/Freeze","Funnel Cloud","Freezing Fog","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane (Typhoon)","Ice Storm","Lake-Effect Snow","Lakeshore Flood","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Seiche","Sleet","Storm Surge/Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
+
+# uppercase the event types to normalize
 eventtypes <- toupper(eventtypes)
 
-# we only care about the valid 47 event types as listed by NOAA
+# we only care about the valid 48 event types as listed by NOAA
 storm <- filter(storm, EVTYPE %in% eventtypes)
 
-# uppercase to normalize the propdmgexp
-storm$PROPDMGEXP <- toupper(storm$PROPDMGEXP)
+unique(storm$EVTYPE)
+```
 
-# uppercase to normalize the cropdmgexp
-storm$CROPDMGEXP <- toupper(storm$CROPDMGEXP)
+We now want to prepare the data for analysis.  Since we will be looking at the total effects on population health and economic impact, we need to do some data aggregation.  First, we will create a population health report by aggregating the storm data based on event type along with summations of fatalities, injuries, and the combined summations of both.
 
-# normalize the damage values by converting them all to billions of dollars
-storm$PROPDMG_NRM <- storm$PROPDMG
-storm[storm$PROPDMGEXP == "K",]$PROPDMG_NRM <- storm[storm$PROPDMGEXP == "K",]$PROPDMG / 1000000
-storm[storm$PROPDMGEXP == "M",]$PROPDMG_NRM <- storm[storm$PROPDMGEXP == "M",]$PROPDMG / 1000
-
-# normalize the damage values by converting them all to billions of dollars
-storm$CROPDMG_NRM <- storm$CROPDMG
-storm[storm$CROPDMGEXP == "K",]$CROPDMG_NRM <- storm[storm$CROPDMGEXP == "K",]$CROPDMG / 1000000
-storm[storm$CROPDMGEXP == "M",]$CROPDMG_NRM <- storm[storm$CROPDMGEXP == "M",]$CROPDMG / 1000
-
+```{r cache=TRUE}
 # using dplyr to select only the data we care about
 # group it all by event type
 # summarise with summations of fatalites, injuries and the combined total
@@ -53,6 +102,43 @@ healthEffectReport <- storm %>%
             totalinjuries=sum(INJURIES), 
             totaleffect=(sum(FATALITIES) + sum(INJURIES)))
 
+summary(healthEffectReport)
+```
+
+Secondy, we will create an economic impact report bt aggreagating the storm date based on event type along with summations of property damage, crop damage, and the combined summations of both.  Before we do that, we must clean the economic data a bit.  The property and crop damage data is given as a numeric value (PROPDMG, CROPDMG columns, respectively) along with indicator of the magnitude of the value: K for thousands of dollars, M for millions of dollars, B for billions of dollars.  Although, if we look at the unique values for the indicator columns we will see that there are values other than "K", "M", and "B".
+
+```{r}
+unique(storm$PROPDMGEXP)
+unique(storm$CROPDMGEXP)
+```
+
+As we did with the event types, we will be following the NOAA specifications and filter the indicators based on "K", "M", and "M".  We will also uppercase the indicators, to normalize any good lowercase data.
+
+```{r cache=TRUE}
+# uppercase to normalize the propdmgexp
+storm$PROPDMGEXP <- toupper(storm$PROPDMGEXP)
+
+# uppercase to normalize the cropdmgexp
+storm$CROPDMGEXP <- toupper(storm$CROPDMGEXP)
+```
+
+The next step will be to convert the property and crop damage into billions of dollars, because that is the magnitude we will be using for our results.  We will do this by creating two new columns (PROPDMG_NRM, CROPDMG_NRM) and storing the converted values within.
+
+```{r cache=TRUE}
+# normalize the damage values by converting them all to billions of dollars
+storm$PROPDMG_NRM <- storm$PROPDMG
+storm[storm$PROPDMGEXP == "K",]$PROPDMG_NRM <- storm[storm$PROPDMGEXP == "K",]$PROPDMG / 1000000
+storm[storm$PROPDMGEXP == "M",]$PROPDMG_NRM <- storm[storm$PROPDMGEXP == "M",]$PROPDMG / 1000
+
+# normalize the damage values by converting them all to billions of dollars
+storm$CROPDMG_NRM <- storm$CROPDMG
+storm[storm$CROPDMGEXP == "K",]$CROPDMG_NRM <- storm[storm$CROPDMGEXP == "K",]$CROPDMG / 1000000
+storm[storm$CROPDMGEXP == "M",]$CROPDMG_NRM <- storm[storm$CROPDMGEXP == "M",]$CROPDMG / 1000
+```
+
+Now that the data is normalized and converted we can create the economic effect report.
+
+```{r cache=TRUE}
 # using dplyr to select only the data we care about
 # filter out cost types that we know are valid from NOAA documentation (K, M, B)
 # group it all by event type
@@ -66,13 +152,21 @@ econEffectReport <- storm %>%
             totalcropdmg=sum(CROPDMG_NRM), 
             totaleffect=sum(PROPDMG_NRM) + sum(CROPDMG_NRM))
 
-# filter by totalharm that has values greater than zero,
-# for a cleaner x-axis
+summary(econEffectReport)
+```
+
+We can do a bit more filtering, by removing any zero values from the dataset, since these will just clutter the x-axis of our result plots.
+
+```{r cache=TRUE}
+# filter by totalharm that has values greater than zero, for a cleaner x-axis
 healthEffectReport <- healthEffectReport[healthEffectReport$totaleffect != 0,]
 econEffectReport <- econEffectReport[econEffectReport$totaleffect != 0,]
 ```
 
-### Harm against humanity
+
+## Results
+
+### Harm Against Humanity
 
 ```{r fig.width=11, fig.height=8}
 ggplot(data=healthEffectReport, aes(x=EVTYPE, y=totaleffect)) +
@@ -83,7 +177,7 @@ ggplot(data=healthEffectReport, aes(x=EVTYPE, y=totaleffect)) +
   theme(axis.text.x=element_text(angle = -90, hjust = 0))
 ```
 
-### Cost against humanity
+### Cost Against Humanity
 
 ```{r fig.width=11, fig.height=8}
 ggplot(data=econEffectReport, aes(x=EVTYPE, y=totaleffect)) +
