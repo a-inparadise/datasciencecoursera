@@ -1,0 +1,120 @@
+Title
+========================================================
+
+### Required packages
+
+
+```r
+library(ggplot2)
+library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
+library(reshape2)
+```
+
+### Process the data
+
+
+```r
+# read in storm data
+storm <- read.csv("repdata-data-StormData.csv", header=TRUE)
+```
+
+
+```r
+# uppercase the event types to remove some duplicates upon aggregation
+storm$EVTYPE <- toupper(storm$EVTYPE)
+
+# 47 event types listed in NOAA documentation, uppercased
+eventtypes <- c("Astronomical Low Tide","Avalanche","Blizzard","Coastal Flood","Cold/Wind Chill","Debris Flow","Dense Fog","Dense Smoke","Drought","Dust Devil","Dust Storm","Excessive Heat","Extreme Cold/Wind Chill","Flash Flood","Flood","Frost/Freeze","Funnel Cloud","Freezing Fog","Hail","Heat","Heavy Rain","Heavy Snow","High Surf","High Wind","Hurricane (Typhoon)","Ice Storm","Lake-Effect Snow","Lakeshore Flood","Lightning","Marine Hail","Marine High Wind","Marine Strong Wind","Marine Thunderstorm Wind","Rip Current","Seiche","Sleet","Storm Surge/Tide","Strong Wind","Thunderstorm Wind","Tornado","Tropical Depression","Tropical Storm","Tsunami","Volcanic Ash","Waterspout","Wildfire","Winter Storm","Winter Weather")
+eventtypes <- toupper(eventtypes)
+
+# we only care about the valid 47 event types as listed by NOAA
+storm <- filter(storm, EVTYPE %in% eventtypes)
+
+# uppercase to normalize the propdmgexp
+storm$PROPDMGEXP <- toupper(storm$PROPDMGEXP)
+
+# uppercase to normalize the cropdmgexp
+storm$CROPDMGEXP <- toupper(storm$CROPDMGEXP)
+
+# normalize the damage values by converting them all to billions of dollars
+storm$PROPDMG_NRM <- storm$PROPDMG
+storm[storm$PROPDMGEXP == "K",]$PROPDMG_NRM <- storm[storm$PROPDMGEXP == "K",]$PROPDMG / 1000000
+storm[storm$PROPDMGEXP == "M",]$PROPDMG_NRM <- storm[storm$PROPDMGEXP == "M",]$PROPDMG / 1000
+
+# normalize the damage values by converting them all to billions of dollars
+storm$CROPDMG_NRM <- storm$CROPDMG
+storm[storm$CROPDMGEXP == "K",]$CROPDMG_NRM <- storm[storm$CROPDMGEXP == "K",]$CROPDMG / 1000000
+storm[storm$CROPDMGEXP == "M",]$CROPDMG_NRM <- storm[storm$CROPDMGEXP == "M",]$CROPDMG / 1000
+
+# using dplyr to select only the data we care about
+# group it all by event type
+# summarise with summations of fatalites, injuries and the combined total
+healthEffectReport <- storm %>%
+  select(EVTYPE, FATALITIES, INJURIES) %>%
+  group_by(EVTYPE) %>%
+  summarise(totalfatalities=sum(FATALITIES), 
+            totalinjuries=sum(INJURIES), 
+            totaleffect=(sum(FATALITIES) + sum(INJURIES)))
+
+# using dplyr to select only the data we care about
+# filter out cost types that we know are valid from NOAA documentation (K, M, B)
+# group it all by event type
+# summarise with summations of property, crop and total damage
+econEffectReport <- storm %>%
+  filter(PROPDMGEXP == "K" | PROPDMGEXP == "M" | PROPDMGEXP == "B" |
+         CROPDMGEXP == "K" | CROPDMGEXP == "M" | CROPDMGEXP == "B") %>%
+  select(EVTYPE, PROPDMG_NRM, CROPDMG_NRM) %>%
+  group_by(EVTYPE) %>%
+  summarise(totalpropdmg=sum(PROPDMG_NRM), 
+            totalcropdmg=sum(CROPDMG_NRM), 
+            totaleffect=sum(PROPDMG_NRM) + sum(CROPDMG_NRM))
+
+# filter by totalharm that has values greater than zero,
+# for a cleaner x-axis
+healthEffectReport <- healthEffectReport[healthEffectReport$totaleffect != 0,]
+econEffectReport <- econEffectReport[econEffectReport$totaleffect != 0,]
+```
+
+### Harm against humanity
+
+
+```r
+ggplot(data=healthEffectReport, aes(x=EVTYPE, y=totaleffect)) +
+  geom_bar(stat="identity") +
+  labs(title="Total Effects on Population Health by Event") +
+  labs(x="Event") +
+  labs(y="Total (in individual incidents)") +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+### Cost against humanity
+
+
+```r
+ggplot(data=econEffectReport, aes(x=EVTYPE, y=totaleffect)) +
+  geom_bar(stat="identity") +
+  labs(title="Greatest Economic Consequences by Event") +
+  labs(x="Event") +
+  labs(y="Total (in billions)") +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
