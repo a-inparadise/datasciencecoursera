@@ -6,13 +6,19 @@ NOAA Storm Data Analysis
 
 ## Synopsis
 
-Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.  This analysis will be looking at the effect that weather events have on population health and population economy.
+Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.  This analysis will be looking at the effect that weather events have on population health and the economic impact on that population.
 
-This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.
+The analysis will be addressing two specific questions:
+
+1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+
+2. Across the United States, which types of events have the greatest economic consequences?
 
 <br>
 
 ## Data Processing
+
+Before we address the questions, let's take a look at how the data was processed and prepared.
 
 ### Required Packages
 
@@ -263,7 +269,7 @@ summary(healthEffectReport)
 ##                     Max.   :5633    Max.   :91346   Max.   :96979
 ```
 
-Secondy, we will create an economic impact report bt aggreagating the storm date based on event type along with summations of property damage, crop damage, and the combined summations of both.  Before we do that, we must clean the economic data a bit.  The property and crop damage data is given as a numeric value (PROPDMG, CROPDMG columns, respectively) along with indicator of the magnitude of the value: K for thousands of dollars, M for millions of dollars, B for billions of dollars.  Although, if we look at the unique values for the indicator columns we will see that there are values other than "K", "M", and "B".
+Second, we will create an economic impact report by aggregating the storm date based on event type along with summations of property damage, crop damage, and the combined summations of both.  Before we do that, we must clean the economic data a bit.  The property and crop damage data is given as a numeric value (PROPDMG, CROPDMG columns, respectively) along with indicator of the magnitude of the value: K for thousands of dollars, M for millions of dollars, B for billions of dollars.  Although, if we look at the unique values for the indicator columns we will see that there are values other than "K", "M", and "B".
 
 
 ```r
@@ -284,7 +290,7 @@ unique(storm$CROPDMGEXP)
 ## Levels:  ? 0 2 B k K m M
 ```
 
-As we did with the event types, we will be following the NOAA specifications and filter the indicators based on "K", "M", and "M".  We will also uppercase the indicators, to normalize any good lowercase data.
+As we did with the event types, we will be following the NOAA specifications and filter the indicators based on "K", "M", and "B".  We will also uppercase the indicators, to normalize any good lowercase data.
 
 
 ```r
@@ -349,33 +355,113 @@ healthEffectReport <- healthEffectReport[healthEffectReport$totaleffect != 0,]
 econEffectReport <- econEffectReport[econEffectReport$totaleffect != 0,]
 ```
 
+The last step is to reorder the EVTYPE factors, so that they appear in descending order in the plots
+
+
+```r
+healthEffectReport <- arrange(healthEffectReport, desc(totaleffect))
+healthEffectReport$EVTYPE <- factor(healthEffectReport$EVTYPE, levels=healthEffectReport$EVTYPE)
+
+econEffectReport <- arrange(econEffectReport, desc(totaleffect))
+econEffectReport$EVTYPE <- factor(econEffectReport$EVTYPE, levels=econEffectReport$EVTYPE)
+```
 
 ## Results
 
-### Harm Against Humanity
+### Question 1: Effect on Population Health
+
+The plot below is an aggregation of event types that shows the total number of incidents (fatalities and injuries) per event type.  Using these two metrics we can get a good estimate to the overall effect on population health for each event.
+
+The "TORNADO" event has the greatest effect upon population health, by orders of magnitude, so much so, that it overwhelms the other events.
 
 
 ```r
 ggplot(data=healthEffectReport, aes(x=EVTYPE, y=totaleffect)) +
   geom_bar(stat="identity") +
-  labs(title="Total Effects on Population Health by Event") +
+  labs(title="Total Effect on Population Health by Event") +
   labs(x="Event") +
   labs(y="Total (in individual incidents)") +
   theme(axis.text.x=element_text(angle = -90, hjust = 0))
 ```
 
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
 
-### Cost Against Humanity
+Therefore, this next plot shows the same data as above, but with the "TORNADO" event removed.  It gives us a much better picture of the other event types and their impact on population health.
+
+
+```r
+ggplot(data=healthEffectReport[healthEffectReport$EVTYPE != "TORNADO",], aes(x=EVTYPE, y=totaleffect)) +
+  geom_bar(stat="identity") +
+  labs(title="Total Effect on Population Health by Event (TORNADO removed)") +
+  labs(x="Event") +
+  labs(y="Total (in individual incidents)") +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0))
+```
+
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
+
+Using the data provided, the plots show a great visual representation of how each event weighs against each other in terms of effect upon population health, given the summation of both number of fatalities and number of injuries.  With the top ten events being:
+
+
+```r
+head(healthEffectReport, n=10L)
+```
+
+```
+## Source: local data frame [10 x 4]
+## 
+##               EVTYPE totalfatalities totalinjuries totaleffect
+## 1            TORNADO            5633         91346       96979
+## 2     EXCESSIVE HEAT            1903          6525        8428
+## 3              FLOOD             470          6789        7259
+## 4          LIGHTNING             816          5230        6046
+## 5               HEAT             937          2100        3037
+## 6        FLASH FLOOD             978          1777        2755
+## 7          ICE STORM              89          1975        2064
+## 8  THUNDERSTORM WIND             133          1488        1621
+## 9       WINTER STORM             206          1321        1527
+## 10         HIGH WIND             248          1137        1385
+```
+
+### Question 2: Economic Impact on the Population
+
+The plot below is an aggregation of event types that shows the total economic effect (property damage and crop damage) per event type.  Using these two metrics we can get a good estimate to the overall economic effect on the population.
 
 
 ```r
 ggplot(data=econEffectReport, aes(x=EVTYPE, y=totaleffect)) +
   geom_bar(stat="identity") +
-  labs(title="Greatest Economic Consequences by Event") +
+  labs(title="Economic Impact on the Population by Event") +
   labs(x="Event") +
-  labs(y="Total (in billions)") +
+  labs(y="Total (in billions of dollars)") +
   theme(axis.text.x=element_text(angle = -90, hjust = 0))
 ```
 
-![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
+![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-18.png) 
+
+Using the data provided, the plots show a great visual representation of how each event weighs against each other in terms of economic effect on the population, given the summation of both property damage and crop damage.  With the top ten events being:
+
+
+```r
+head(econEffectReport, n=10L)
+```
+
+```
+## Source: local data frame [10 x 4]
+## 
+##            EVTYPE totalpropdmg totalcropdmg totaleffect
+## 1         TORNADO      109.937    160.41495     270.352
+## 2           FLOOD      144.658      5.66197     150.320
+## 3     FLASH FLOOD      144.541      1.42132     145.962
+## 4       ICE STORM       53.945      5.02211      58.967
+## 5            HAIL       48.732      6.02595      54.758
+## 6         DROUGHT        1.046     13.97257      15.019
+## 7  TROPICAL STORM        7.704      0.67835       8.382
+## 8    WINTER STORM        6.688      0.02694       6.715
+## 9       HIGH WIND        5.270      0.63857       5.909
+## 10       WILDFIRE        4.765      0.29547       5.061
+```
+
+## Summary
+
+Given the data that was available for the analysis and that the results are validated and reproduced, the results could be leveraged to make a fairly good estimate for how local event types could effect both population health and economic impact and give state, city, or county planners good data to base any planning decisions upon.
