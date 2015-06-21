@@ -1,0 +1,143 @@
+Analysis of Tooth Growth Dataset
+========================================================
+
+## Overview
+
+In this project we will analyze the Tooth Growth Dataset included in the R package and we will attempt to achieve the following goals:
+
+1. Load the ToothGrowth data and perform some basic exploratory data analyses.
+
+2. Provide a basic summary of the data.
+
+3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose.
+
+4. State conclusions and the assumptions needed for the conclusions.
+
+### Required Libraries
+
+For this analysis we will be using the ggplot2 library.
+
+```{r echo=FALSE}
+# we will be using ggplot2
+library(ggplot2)
+```
+
+### Load the Dataset
+
+```{r cache=TRUE}
+data(ToothGrowth)
+```
+
+### Data Description
+
+The response is the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice, OJ, or ascorbic acid, VC).
+
+### Data Summary
+
+Head of the dataset:
+
+```{r echo=FALSE}
+head(ToothGrowth)
+```
+
+Summary of the dataset:
+
+```{r echo=FALSE}
+summary(ToothGrowth)
+```
+
+If we plot the data using a box plot and use the interaction function to combine the supplement and dosage columns we can see that as the dosage increases the length of tooth growth increases as well (see Appendix Code Sample 1:
+
+```{r fig.width=9, fig.height=6, echo=FALSE}
+ggplot(ToothGrowth, aes(interaction(supp, dose), len, fill=interaction(supp, dose))) + 
+  geom_boxplot() +
+  labs(x="Supplement and Dose") +
+  labs(y="Length") +
+  guides(fill=FALSE)
+```
+
+### Initial Assumptions
+
+The above boxplot seems to suggest that at higher dosages both orange juice and ascorbic acid increase tooth growth length comparably, but at lower dosages orange juice increases tooth growth at a higher rate than ascorbic acid.  To better understand the data and to back up what we have already seen we will now break the data down by supplement and then by dosage.  
+
+## Analysis
+
+### Test Data By Supplement (see Code Sample 2)
+
+```{r cache=TRUE, echo=FALSE}
+suppoj = subset(ToothGrowth, supp == "OJ")
+suppvc = subset(ToothGrowth, supp == "VC")
+supptest  <- t.test(suppoj$len, suppvc$len)
+supptest
+```
+
+Given the p value of 0.0606 is greater than 0.05 we cannot reject the null hypothesis, therefore there is no significant tooth growth by supplement across the entire dataset.  The confidence interval [-0.171, 7.571] includes 0, which also lends toward the conclusion that there is no significant tooth growth by supplement across the entire dataset.
+
+### Test Data By Dosage of 0.5mg By Supplement (see Code Sample 3)
+
+```{r cache=TRUE, echo=FALSE}
+lowdosetest  <- t.test(subset(suppoj, dose == 0.5)$len, subset(suppvc, dose == 0.5)$len)
+lowdosetest
+```
+
+Given the p value of 0.006359 is lower than 0.05 we can reject the null hypothesis, therefore accepting the alternative hypothesis that at a dosage of 0.5mg orange juice results in greater tooth growth than ascorbic acid at the same dose.  The confidence interval [1.719057, 8.780943] does not include 0, which also lends toward the conclusion that there is significant tooth growth for orange juice over ascorbic acid for a dose of 0.5mg.
+
+### Test Data By Dosage of 1.0mg By Supplement (see Code Sample 4)
+
+```{r cache=TRUE, echo=FALSE}
+meddosetest  <- t.test(subset(suppoj, dose == 1.0)$len, subset(suppvc, dose == 1.0)$len)
+meddosetest
+```
+
+Given the p value of 0.001038 is lower than 0.05 we can reject the null hypothesis, therefore accepting the alternative hypothesis that at a dosage of 1.0mg orange juice results in greater tooth growth than ascorbic acid at the same dose.  The confidence interval [2.802148 9.057852] does not include 0, which also lends toward the conclusion that there is significant tooth growth for orange juice over ascorbic acid for a dose of 1.0mg.
+
+### Test Data By Dosage of 2.0mg By Supplement (see Code Sample 5)
+
+```{r cache=TRUE, echo=FALSE}
+highdosetest  <- t.test(subset(suppoj, dose == 2.0)$len, subset(suppvc, dose == 2.0)$len)
+highdosetest
+```
+
+Given the p value of 0.9639 is greater than 0.05 we cannot reject the null hypothesis, therefore there is no significant tooth growth by supplement for dosages of 2.0mg.  The confidence interval [-3.79807, 3.63807] includes 0, which also lends toward the conclusion that there is no significant tooth growth by supplement for dosages of 2.0mg.
+
+### Conclusions
+
+After plotting the data and running Two Sample t-tests by both supplement and dosage we can say with confidence that at lower dosages (0.5mg and 1.0mg) orange juice increases tooth growth over ascorbic acid, but at a dosage of 2.0mg there is no significant difference in tooth growth between orange juince and ascorbic acid.  Also, tooth growth increases using both supplements as dosages increase.
+
+## Appendix
+
+### Code Sample 1
+
+```{r }
+g <- ggplot(ToothGrowth, aes(interaction(supp, dose), len, fill=interaction(supp, dose))) + 
+  geom_boxplot() +
+  labs(x="Supplement and Dose") +
+  labs(y="Length") +
+  guides(fill=FALSE)
+```
+
+### Code Sample 2
+
+```{r}
+suppoj = subset(ToothGrowth, supp == "OJ")
+suppvc = subset(ToothGrowth, supp == "VC")
+supptest  <- t.test(suppoj$len, suppvc$len)
+```
+
+### Code Sample 3
+
+```{r}
+lowdosetest  <- t.test(subset(suppoj, dose == 0.5)$len, subset(suppvc, dose == 0.5)$len)
+```
+
+### Code Sample 4
+
+```{r}
+meddosetest  <- t.test(subset(suppoj, dose == 1.0)$len, subset(suppvc, dose == 1.0)$len)
+```
+
+### Code Sample 5
+
+```{r}
+highdosetest  <- t.test(subset(suppoj, dose == 2.0)$len, subset(suppvc, dose == 2.0)$len)
+```
