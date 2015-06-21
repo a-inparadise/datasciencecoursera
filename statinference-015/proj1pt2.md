@@ -72,7 +72,17 @@ The above boxplot seems to suggest that at higher dosages both orange juice and 
 
 
 ```
-## Error: cannot coerce class ""htest"" to a data.frame
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  suppoj$len and suppvc$len
+## t = 1.915, df = 55.31, p-value = 0.06063
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -0.171  7.571
+## sample estimates:
+## mean of x mean of y 
+##     20.66     16.96
 ```
 
 Given the p value of 0.0606 is greater than 0.05 we cannot reject the null hypothesis, therefore there is no significant tooth growth by supplement across the entire dataset.  The confidence interval [-0.171, 7.571] includes 0, which also lends toward the conclusion that there is no significant tooth growth by supplement across the entire dataset.
